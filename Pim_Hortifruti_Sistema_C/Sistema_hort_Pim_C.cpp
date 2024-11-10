@@ -3,6 +3,7 @@
 #include <stdlib.h> // Biblioteca de funções utilitárias gerais, como, malloc(), exit() e system().
 #include <unistd.h> // No Linux/Mac (Coloquei porque uso o Lunix no trabalho e boa parte do código fiz por lá)
 #include <conio.h> // Biblioteca para  interação com o usuário através do console, como captura de caracteres sem necessidade de pressão "Enter"
+#include <stdbool.h> // Biblioteca para operadores lógicos
 #include <windows.h> // Biblioteca que aceita alguns codigos desse sistema operacional
 #define CLEAN_BUFF do{ int c; while((c = getchar()) != '\n' && c != EOF);}while(0) // macro chamada CLEAN_BUFF, que é um mecanismo comum em C para limpar o "buffer" de entrada (ou seja, o que fica armazenado na memória temporária quando o programa lê dados do teclado).
 #include <locale.h> // Biblioteca que permite definir convenções regionais de um programa, como idioma.
@@ -29,6 +30,11 @@
 		int telFunc;
 	} structFuncionario;
 	
+	typedef struct {
+		int idCliente;
+		char nomeCliente[30];
+		char CPFCliente[11];
+	} structCliente;
 
 	void infoProduto(structProduto prod); // Função que eontém e retorna as informações do Produto
 	void menu(); // Função Menu com as opções do sistema
@@ -42,6 +48,9 @@
 	void sistemaLoginCase(); // Função que serve como o menu inicial, contendo o login, cadastro do usuário e a opção sair.
 	void mostrarRegistros(); // Função que retorna o registro do login dos usuários registrados em um arquivo
 	void exibirLinha(); // Função criada no intuito de separar blocos e estilizar o layout
+	void cadastrarCliente(); // Função criada para cadastrar os clientes fidelidade
+	void limpaConsole(); // Função para limpar o console, removendo qualquer conteúdo exibido anteriormente e deixar uma tela limpa para novas informações.
+	bool verificarFidelidade(char* cpf);
 	
 	structProduto pegarProdutoPorCodigo(int codigoProduto); // Função do tipo structProduto
 	int * temNoPedido(int codigoProduto); // Pronto, Verificar se o produto já consta na lista
@@ -49,9 +58,11 @@
 	static int contador_produto = 0; // Declaração dos contadores que serão usados na lógica do código e para percorrer os vetores.
 	static int contador_lista = 0;
 	static int contador_Funcionario = 0;
+	static int contator_cliente = 0;
 	static structFuncionario funcionarios[15];
 	static structListaPedido listaPedido[50];
 	static structProduto produtos[50];
+	static structCliente clientes[15];
 	// Armazena até 50|15 itens no vetor. Cada elemento é um objeto da estrutura struct[continuação], que contém um grupo de "variaveis", estamos utilizando como um array.
 	// ou seja, array do tipo struct
 
@@ -134,16 +145,17 @@
 	    printf("|_|  |_|\\____/|_|  \\_\\ |_|  |_____|_|    |_|  \\_\\\\____/   |_|  |_____|\n\n");
 	    printf(" ______ ______ ______ ______ ______ ______ ______ ______ ______ ______ ______ \n");
 	    printf("|______|______|______|______|______|______|______|______|______|______|______|\n\n");
-		printf("                    Selecione alguma das opções abaixo: \n\n");
+		printf("                    Escolha e digite o número das operações abaixo: \n\n");
 			printf("| 1 | - Cadastrar Produto\n");
-			printf("| 2 | - Listar Produtos\n");
+			printf("| 2 | - Visualizar Estoque\n");
 			printf("| 3 | - Comprar Produto\n");
 			printf("| 4 | - Visualizar Lista Pedido\n");
 			printf("| 5 | - Fechar pedido\n");
 			printf("| 6 | - Cadastrar Funcionário\n");
 			printf("| 7 | - Visualizar dados Funcionarios\n");
 			printf("| 8 | - Mostrar Registros de Usuarios\n"); // Nova opção para visualizar registros
-	        printf("| 9 | - Sair do sistema\n\n");
+	        printf("| 9 | - Cadastrar Cliente\n");
+			printf("| 0 | - Sair do sistema\n\n");
 			
 	
 	    int opcao;
@@ -152,33 +164,45 @@
 	
 	    switch (opcao) {
 	        case 1:
+	        	sleep(2);
 	            cadastrarProduto(); // chama a função dos cadastro dos produtos
 	            break;
 	        case 2:
+	        	sleep(2);
 	            listarProdutos(); // chama a função que lista os produtos cadastrados
 	            break;
 	        case 3:
+	        	sleep(2);
 	            comprarProduto(); // Chama a fução de comprar produto
 	            break;
 	        case 4:
+	        	sleep(2);
 	            visualizarListaPedido(); // Chama a função para visualizar o pedido da compra
 	            break;
 	        case 5:
+	        	sleep(2);
 	            fecharPedido(); // Chama função para concluir o pedido da compra
 	            break;
 	  	    case 6:
+	  	    	sleep(2);
 				cadastrarFuncionario(); // chamada função para cadastrar os funcionários
 				break;
 			case 7:
+				sleep(2);
 				listarFuncionarios(); // Chama função para lisar os funcionários
 				break;
 			case 8:
-	                mostrarRegistros();  // Chama a função para exibir registros de usuários
-	                break;
-	            case 9:
-	                printf("Obrigado, volte sempre!\n");
-	                sleep(2);
-	                exit(0);
+				sleep(2);
+                mostrarRegistros();  // Chama a função para exibir registros de usuários
+                break;
+	        case 9:
+	        	sleep(2);
+	        	cadastrarCliente(); // Chama a função de cadastro de Cliente 
+	        	break;
+			case 0:
+                printf("Obrigado, volte sempre!\n");
+                sleep(2);
+                exit(0);
 			default: 
 				printf("Opção inválida \n");
 				sleep(2); //Pausar o código por dois segundos
@@ -206,7 +230,7 @@
 	        }
 	        fclose(fpIN);  // Fecha o arquivo após a leitura
 	    }
-	    sleep(5); // Atraso de 5 segundos
+	    sleep(3); // Atraso de 3 segundos
 	    menu(); // Abrindo a função menu após concluir a ação 
 	} // Fechando a função mostrar registros
 
@@ -235,7 +259,7 @@
 	    contador_produto++;
 		
 	
-	    sleep(4); // Atraso de 4 segundos
+	    sleep(2); // Atraso de 2 segundos
 	    menu(); // Função para retornar ao menu
 	} // Fechando a função
 
@@ -350,7 +374,7 @@
 	        }
 	    } else {
 	        printf("Ainda não existem produtos para vender.\n");
-	        sleep(4); // Atraso de 4 segundos
+	        sleep(2); // Atraso de 2 segundos
 	        menu(); // Retornando para função menu
 	    }
 	} // Fechando a função de cadastrar
@@ -376,13 +400,13 @@
 	            printf("Quantidade no carrinho: %d\n", listaPedido[i].quantidade); // Depois de exibir as informações, chamamos o array listaPedido para exibir a quantidade. 
 	
 	            printf("____________________________________________________________________________\n\n");
-	            sleep(2); // Atraso de dois segundos
+	            sleep(2); // Atraso de 2 segundos
 	        }
-	        sleep(3);
+	        sleep(2);
 	        menu();
 	    }else{
 	        printf("Não temos ainda produtos no carrinho.\n");
-	        sleep(4); // Atraso de 4 segundos
+	        sleep(2); // Atraso de 2 segundos
 	        menu(); // Retorna para o menu
 	    }
 	} // Fechando a função de visualizar Pedido
@@ -420,26 +444,44 @@
 	
 	    if(contador_lista > 0){ // Se for maior que 0, significa que tem, então faça:
 	        float valorTotal = 0.0;
+	        bool fidelidade = false;
 		    printf("               ========== Concluir Pedido ===========\n");
 	        printf("____________________________________________________________________________\n\n");
 	        for(int i = 0; i < contador_lista; i++){ // Loop para percorrer
 	        
 	            structProduto p = listaPedido[i].produto; // p retorna o produto da structListaProduto, que contém a structProduto inteira. 
-	            int quantidade = listaPedido[i].quantidade;
-	            // Valor total vai ser igual o preco unitário do produto vezes a quantidade. 
-	            valorTotal += p.precoProduto * quantidade;
+	            int quantidade = listaPedido[i].quantidade; // Valor total vai ser igual o preco unitário do produto vezes a quantidade. 
+	            valorTotal += p.precoProduto * quantidade; // Calcula o valor total
 	            
 	            infoProduto(p); // Retorna as informações do produto
 	            printf("Quantidade no carrinho: %d\n", quantidade);
 	            printf("____________________________________________________________________________\n\n");
 	            sleep(2); // Atraso de dois segundos
 	        }
-	        printf("Sua fatura é R$ %.2f\n", valorTotal); // Retornando o valor total
-	
+	        
+	       printf("O cliente tem fidelidade? (1 para Sim, 0 para Não): ");
+        scanf("%d", &fidelidade); // Leitura da resposta
+		for(int i =0 ; i<3; i++){
+	        if (fidelidade) { // Se o cliente tem fidelidade
+	        	char cpf[12];
+		        printf("Informe o CPF do cliente: ");
+		        scanf("%s", cpf); 
+	        	if(verificarFidelidade(cpf)){
+		            printf("\nDesconto de fidelidade aplicado! 10%% de desconto.\n");
+		            valorTotal *= 0.9; // Aplica 10% de desconto
+		            break;
+				}else{
+					printf("CPF não encontrado\n");
+					printf("Tente novamente (%d de 3)\n", i+1);
+				}
+	        }
+		}
+        
+        printf("\nValor Total do Pedido: R$ %.2f\n", valorTotal);
 	        //limpar carrinho
 	        contador_lista = 0;
 	        printf("Obrigado pela preferência.\n");
-	        sleep(4); // Atraso de 4 segundos
+	        sleep(2); // Atraso de 2 segundos
 	        menu(); // Retorna para o menu
 	    }else{
 	        printf("Você não tem nenhum produto no carrinho ainda.\n");
@@ -447,8 +489,28 @@
 	        menu(); // Retorna para o menu
 	    }
 	} // Fechando a função fecharPedido.
-
+	
+	bool verificarFidelidade(char* cpf) {
+	    FILE* fpIN = fopen("clientes.txt", "r");
+	    if (fpIN == NULL) {
+	   	 	printf("Erro ao abrir o arquivo de clientes.\n");
+	   		return false;
+	    }
+	
+	    char cpfArquivo[12];
+	    while (fscanf(fpIN, "%*d %*s %s", cpfArquivo) != EOF) { // Lê apenas o CPF no arquivo
+	        if (strcmp(cpf, cpfArquivo) == 0) { // Verifica se o CPF está no arquivo
+	            fclose(fpIN);
+	            return true; // CPF encontrado, cliente fidelidade
+	        }
+	    }
+	
+	    fclose(fpIN);
+	    return false; // CPF não encontrado
+	}
+	
 	void cadastrarFuncionario(){
+	
 		//Abrindo a função que cadastro o funcionário
 		exibirLinha(); //Linha separador
 	
@@ -459,8 +521,8 @@
 		fgets(funcionarios[contador_Funcionario].nomeFunc, 30, stdin); 
 		
 		printf("Informe o endereço do funcionário: ");
-		fgets(funcionarios[contador_Funcionario].endFunc, 50, stdin);
-		
+	    fgets(funcionarios[contador_Funcionario].endFunc, 50, stdin);
+	    
 		printf("Informe o CPF do funcionário: ");
 		scanf("%f", &funcionarios[contador_Funcionario].CPFFunc);
 		
@@ -477,7 +539,7 @@
 		funcionarios[contador_Funcionario].idFunc = (contador_Funcionario + 1);
 		contador_Funcionario++;
 
-		sleep(5);
+		sleep(3);
 		menu();
 	} // Fechando a função cadastrarFuncionario
 	
@@ -506,13 +568,13 @@
 				printf("____________________________________________________________________________\n\n");
 				sleep(1);
 			}
-		 sleep(4);
+		 sleep(2);
 		menu();
 		
 		}
 		else{
 			printf("\nNão temos ainda funcionarios cadastrados. \n");
-			sleep(4);
+			sleep(2);
 			menu();
 		}
 	} // Fechando a função listarProduto.
@@ -595,7 +657,7 @@
 	    printf("|______|______|______|______|______|______|______|______|______|______|______|\n\n");
 		
 		printf("                        Olá, seja bem vinda(o)!\n");
-		printf("                     Escolhe uma das opções abaixo:\n\n");
+		printf("                     Escolha e digite o número das operações abaixo:\n\n");
 		do
 		{
 			        // Exibe o menu de opções
@@ -672,5 +734,61 @@
 	       	}
 		}while( 1 );
 	
+	}
+	
+	void cadastrarCliente(){
+		FILE* fpIN;
+		limpaConsole();
+		exibirLinha(); //Linha separador
+		printf("  _____          _____           _____ _______ _____   ____  \n");
+	    printf(" / ____|   /\\   |  __ \\   /\\    / ____|__   __|  __ \\ / __ \\ \n");
+	    printf("| |       /  \\  | |  | | /  \\  | (___    | |  | |__) | |  | |\n");
+	    printf("| |      / /\\ \\ | |  | |/ /\\ \\  \\___ \\   | |  |  _  /| |  | |\n");
+	    printf("| |____ / ____ \\| |__| / ____ \\ ____) |  | |  | | \\ \\| |__| |\n");
+	    printf("\\_____/_/    \\_\\_____/__/    \\_\\_____/   |_|  |_|  \\_\\____/ \n\n");
+	    printf("  _____ _      _____ ______ _   _ _______ ______ \n");
+	    printf(" / ____| |    |_   _|  ____| \\ | |__   __|  ____|\n");
+	    printf("| |    | |      | | | |__  |  \\| |  | |  | |__   \n");
+	    printf("| |    | |      | | |  __| | . ` |  | |  |  __|  \n");
+	    printf("| |____| |____ _| |_| |____| |\\  |  | |  | |____ \n");
+	    printf(" \\_____|______|_____|______|_| \\_|  |_|  |______|\n\n");
+				
+		printf("Informe o nome do cliente: ");
+	    fgets(clientes[contator_cliente].nomeCliente, 30, stdin); 
+	
+	    printf("Informe o CPF do cliente: ");
+	    fgets(clientes[contator_cliente].CPFCliente, 12, stdin);
+
+		
+		//A função strtok devolve um ponteiro para a próxima palavra na string
+		
+		printf("____________________________________________________________________________\n\n");
+
+		printf("Cliente %s cadastrado com sucesso. \n\n", strtok(clientes[contator_cliente].nomeCliente, "\n\n"));
+		
+		fpIN = fopen("clientes.txt", "a+"); 
+		// Salva o usuário e a senha no arquivo
+		if (fpIN != NULL) {
+        // Salva o cliente no arquivo
+        	fprintf(fpIN, "%d %s %s\n", clientes[contator_cliente].idCliente, 
+                                        clientes[contator_cliente].nomeCliente, 
+                                        clientes[contator_cliente].CPFCliente);
+        	fclose(fpIN); // Fecha o arquivo
+    	} else {
+        	printf("Erro ao abrir o arquivo!\n");
+    	}
+    	// Vamos incrementar o codigo do produto 0 para 1, para o cdg não começar no 0
+		clientes[contator_cliente].idCliente = (contator_cliente + 1);
+		contator_cliente++;
+		sleep(2);
+		menu();	    
+	}
+	
+	void limpaConsole(){
+		#ifdef _WIN32
+			system("cls");  
+    	#else
+        	system("clear"); 
+    	#endif
 	}
 
