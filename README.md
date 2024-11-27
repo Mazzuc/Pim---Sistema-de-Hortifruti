@@ -22,6 +22,11 @@
   
 <a href="http://www.clem.ufba.br/tuts/html/c07.htm#:~:text=A%20HTML%20usa%20a%20tag,(link)%20com%20outro%20documento.">Ingrid Cristiny dos Reis</a> <bR>
 <a href="http://www.clem.ufba.br/tuts/html/c07.htm#:~:text=A%20HTML%20usa%20a%20tag,(link)%20com%20outro%20documento.">Leonardo Ferreira Mazzuco Matias</a> <bR>
+<a href="">Luis Alberto Rodrigues Marinho</a> <bR>
+<a href="">Marco Antonio Golçanlves Lopes</a> <bR>
+<a href="">Nicholas Pereira Oliveira</a> <bR>
+<a href="">Philipi Oliveira Batista</a> <bR>
+
 
 
   </details>
