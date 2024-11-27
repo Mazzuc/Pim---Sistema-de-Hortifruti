@@ -67,4 +67,3 @@
 <br><hr>
 Para mais informações, acesse: <br>
 
-<a href="https://github.com/Mazzuc/Lionnez/wiki">Projeto Hortifŕuti - UNIVERSIDADE PAULISTA</a><br>
